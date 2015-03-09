@@ -1,0 +1,14 @@
+.sketchfab-embed {
+
+}
+.sketchfab-embed-desc {
+    margin: 5px;
+
+    font-size: 13px;
+    font-weight: normal;
+    color: #4A4A4A;
+}
+.sketchfab-embed-desc a {
+    font-weight: bold;
+    color: #1CAAD9;
+}

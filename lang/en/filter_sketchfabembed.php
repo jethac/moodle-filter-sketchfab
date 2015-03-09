@@ -23,3 +23,5 @@
  * @copyright  2015 Jetha Chan <jetha@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+$string['filtername'] = 'Sketchfab';
+$string['modeldesc'] = '{$a->modelname} by {$a->author} on {$a->sketchfab}';
