@@ -2,7 +2,7 @@
 [Sketchfab][1] embedding comes to Atto! This text filter plugin works with [moodle-atto-sketchfab][3] and automatically replaces thumbnails with the embedded Sketchfab viewer.
 
 ## Requirements
-* Moodle 2.x
+* Moodle 2.7.7+ (2014051207.02 or higher)
 * [moodle-atto-sketchfab][3] installed
 
 ## Quick install
