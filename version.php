@@ -18,7 +18,7 @@
  * Version details
  *
  * @package    filter
- * @subpackage sketchfabembed
+ * @subpackage sketchfab
  * @copyright  2015 Jetha Chan <jetha@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,4 +27,4 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2015030900;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2014110400;        // Requires this Moodle version
-$plugin->component = 'filter_sketchfabembed'; // Full name of the plugin (used for diagnostics)
+$plugin->component = 'filter_sketchfab'; // Full name of the plugin (used for diagnostics)

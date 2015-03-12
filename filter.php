@@ -19,14 +19,14 @@
  * Filter converting Sketchfab URLs in the text to embedded Sketchfab viewers.
  *
  * @package    filter
- * @subpackage sketchfabembed
+ * @subpackage sketchfab
  * @copyright  2015 Jetha Chan <jetha@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined ('MOODLE_INTERNAL') || die();
 
-class filter_sketchfabembed extends moodle_text_filter {
+class filter_sketchfab extends moodle_text_filter {
 
     const SKETCHFAB_OEMBED_ENDPOINT = 'https://sketchfab.com/oembed';
     const SKETCHFAB_HOME_URL = 'https://sketchfab.com';
@@ -36,12 +36,12 @@ class filter_sketchfabembed extends moodle_text_filter {
     /**
      * @var int Width of Sketchfab embed.
      */
-    private $width = 600;
+    private $width = 448;
 
     /**
      * @var int Height of Sketchfab embed.
      */
-    private $height = 400;
+    private $height = 241;
 
     /**
      * Apply the filter to the text
@@ -68,22 +68,22 @@ class filter_sketchfabembed extends moodle_text_filter {
     }
 
     /**
-     * Given some text, this function searches for a Sketchfab link of form
+     * Given some text, this function searches for Sketchfab embeds created by atto_sketchfab.
      *
      *
-     * @param string $text Passed in by reference, the string to be searched for urls.
+     * @param string $text Passed in by reference, the string to be searched for embeds.
      */
     protected function convert_sketchfablinks_into_embeds (&$text) {
 
         global $CFG;
 
-
-        $regex = '/(?i)<a href=\"http[s]?:\\/\\/sketchfab.com\\/models\\/(\\w+)\".*>(.+?)<\\/a>/ui';
+        $regex = "/(<div class=\"atto_sketchfab-embed\">(.*?<\\/div>)<\\/div>)/";//'/(?i)<a href=\"http[s]?:\\/\\/sketchfab.com\\/models\\/(\\w+)\".*>(.+?)<\\/a>/ui';
         $rval = array();
         $success = preg_match_all($regex, $text, $rval);
         $targets = $rval[0];
         $modelids = $rval[1];
         $linktext = $rval[2];
+
         $embeds = array();
 
         if (!$success)
@@ -95,73 +95,64 @@ class filter_sketchfabembed extends moodle_text_filter {
         // Build all embeds.
         for ($i = 0; $i < count($targets); $i++) {
 
-            $modelid = $modelids[$i];
+            $dom = new DOMDocument();
+            $dom->loadHTML($targets[$i]);
 
-            // Build a Sketchfab embed.
-            // - make a curl request to get metadata
-            $metadata = $curl->get(self::SKETCHFAB_API_ENDPOINT . '/' . $modelid);
-            if (!$metadata) {
-                continue;
+            $links = $dom->getElementsByTagName('a');
+            $thumblink = null;
+            $modelhref = '';
+            foreach ($links as $link) {
+                $thisclass = $link->getAttribute('class');
+                if ($thisclass === 'atto_sketchfab-embed-thumb') {
+                    $modelhref = $link->getAttribute('href');
+                    $thumblink = $link;
+                }
             }
-            $metajson = json_decode($metadata, true);
-            $author = $metajson['user']['displayName'];
-            $modelname = $metajson['name'];
+            if (!empty($modelhref)) {
 
-            // @todo Replace with Mustache-based approach for Moodle 2.9.
-            // - iframe
-            $embed = html_writer::tag(
-                'iframe',
-                '',
-                array(
-                    'width' => $this->width,
-                    'height' => $this->height,
-                    'src' => self::SKETCHFAB_MODELPAGE_URL . '/' . $modelid . '/embed',
-                    'frameborder' => 0,
-                    'allowfullscreen' => 'true',
-                    'mozallowfullscreen' => 'true',
-                    'webkitallowfullscreen' => 'true',
-                    'onmousewheel' => ''
-                )
-            );
-            // - meta
-            $a = new stdClass();
-            $a->modelname = html_writer::link(
-                self::SKETCHFAB_MODELPAGE_URL . '/' . $modelid . '?utm_source=oembed&utm_medium=embed&utm_campaign=' . $modelid,
-                $modelname,
-                array(
-                    'target' => '_blank'
-                )
-            );
-            $a->author = html_writer::link(
-                self::SKETCHFAB_HOME_URL . '/' . $author . '?utm_source=oembed&utm_medium=embed&utm_campaign=' . $modelid,
-                $author,
-                array(
-                    'target' => '_blank'
-                )
-            );
-            $a->sketchfab = html_writer::link(
-                self::SKETCHFAB_HOME_URL . '?utm_source=oembed&utm_medium=embed&utm_campaign=' . $modelid,
-                'Sketchfab',
-                array(
-                    'target' => '_blank'
-                )
-            );
-            $embed .= html_writer::div(
-                get_string('modeldesc', 'filter_sketchfabembed', $a),
-                'sketchfab-embed-desc'
-            );
-            $embed = html_writer::div(
-                $embed,
-                'sketchfab-embed'
-            );
+                $modelidregex = '"http:\\/\\/www.sketchfab.com\\/models\\/(\\w*).*"';
+                $modelidmatches = array();
 
-            // Push onto the embed array.
-            $embeds[] = $embed;
+                if (preg_match($modelidregex, $modelhref, $modelidmatches)) {
+                    // echo html_writer::tag('pre', $modelidmatches[1]);
+                    $modelid = $modelidmatches[1];
+
+                    // Build a Sketchfab embed.
+                    // - make a curl request to get metadata
+                    $metadata = $curl->get(self::SKETCHFAB_API_ENDPOINT . '/' . $modelid);
+                    if (!$metadata) {
+                        $embeds[] = $targets[$i];
+                        continue;
+                    }
+                    $metajson = json_decode($metadata, true);
+                    $author = $metajson['user']['displayName'];
+                    $modelname = $metajson['name'];
+
+                    // @todo Replace with Mustache-based approach for Moodle 2.9.
+                    // - iframe
+                    $iframe = $dom->createElement('iframe');
+                    $iframeattrs = array(
+                        'width' => $this->width,
+                        'height' => $this->height,
+                        'src' => self::SKETCHFAB_MODELPAGE_URL . '/' . $modelid . '/embed',
+                        'frameborder' => 0,
+                        'allowfullscreen' => 'true',
+                        'mozallowfullscreen' => 'true',
+                        'webkitallowfullscreen' => 'true',
+                        'onmousewheel' => ''
+                    );
+                    foreach ($iframeattrs as $key => $value) {
+                        $iframe->setAttribute($key, $value);
+                    }
+                    $thumblink->parentNode->replaceChild($iframe, $thumblink);
+
+                    // Push onto the embed array.
+                    $embeds[] = $dom->saveHTML();
+                }
+            }
         }
 
         // Replace.
         $text = str_replace($targets, $embeds, $text);
-
     }
-
 }

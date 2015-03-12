@@ -16,12 +16,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for filter_sketchfabembed
+ * Strings for filter_sketchfab
  *
  * @package    filter
- * @subpackage sketchfabembed
+ * @subpackage sketchfab
  * @copyright  2015 Jetha Chan <jetha@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $string['filtername'] = 'Sketchfab';
-$string['modeldesc'] = '{$a->modelname} by {$a->author} on {$a->sketchfab}';
