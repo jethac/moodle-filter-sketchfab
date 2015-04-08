@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Filter converting Sketchfab URLs in the text to embedded Sketchfab viewers.
+ * Filter converting Sketchfab embeds created by atto_sketchfab in the text to embedded Sketchfab viewers.
  *
  * @package    filter
  * @subpackage sketchfab
@@ -26,11 +25,29 @@
 
 defined ('MOODLE_INTERNAL') || die();
 
+/**
+ * Converts Sketchfab embeds created by atto_sketchfab to embedded Sketchfab viewers.
+ */
 class filter_sketchfab extends moodle_text_filter {
 
+    /**
+     * @const string OEmbed endpoint for Sketchfab.
+     */
     const SKETCHFAB_OEMBED_ENDPOINT = 'https://sketchfab.com/oembed';
+
+    /**
+     * @const string Sketchfab's home URL.
+     */
     const SKETCHFAB_HOME_URL = 'https://sketchfab.com';
+
+    /**
+     * @const string Base URL for a Sketchfab model's page.
+     */
     const SKETCHFAB_MODELPAGE_URL = 'https://sketchfab.com/models';
+
+    /**
+     * @const string v2 API endpoint for Sketchfab.
+     */
     const SKETCHFAB_API_ENDPOINT = 'https://api.sketchfab.com/v2/models';
 
     /**
@@ -77,7 +94,7 @@ class filter_sketchfab extends moodle_text_filter {
 
         global $CFG;
 
-        $regex = "/(<div class=\"atto_sketchfab-embed\">(.*?<\\/div>)<\\/div>)/";//'/(?i)<a href=\"http[s]?:\\/\\/sketchfab.com\\/models\\/(\\w+)\".*>(.+?)<\\/a>/ui';
+        $regex = "/(<div class=\"atto_sketchfab-embed\">(.*?<\\/div>)<\\/div>)/";
         $rval = array();
         $success = preg_match_all($regex, $text, $rval);
         $targets = $rval[0];
@@ -86,8 +103,9 @@ class filter_sketchfab extends moodle_text_filter {
 
         $embeds = array();
 
-        if (!$success)
+        if (!$success) {
             return;
+        }
 
         // Create a new instance of the Moodle cURL class to use.
         $curl = new curl();
@@ -114,11 +132,10 @@ class filter_sketchfab extends moodle_text_filter {
                 $modelidmatches = array();
 
                 if (preg_match($modelidregex, $modelhref, $modelidmatches)) {
-                    // echo html_writer::tag('pre', $modelidmatches[1]);
                     $modelid = $modelidmatches[1];
 
                     // Build a Sketchfab embed.
-                    // - make a curl request to get metadata
+                    // - make a curl request to get metadata.
                     $metadata = $curl->get(self::SKETCHFAB_API_ENDPOINT . '/' . $modelid);
                     if (!$metadata) {
                         $embeds[] = $targets[$i];
@@ -128,8 +145,8 @@ class filter_sketchfab extends moodle_text_filter {
                     $author = $metajson['user']['displayName'];
                     $modelname = $metajson['name'];
 
-                    // @todo Replace with Mustache-based approach for Moodle 2.9.
-                    // - iframe
+                    // Consider replacing with Mustache-based approach for Moodle 2.9.
+                    // - iframe.
                     $iframe = $dom->createElement('iframe');
                     $iframeattrs = array(
                         'width' => $this->width,

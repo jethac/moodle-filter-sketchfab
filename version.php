@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2015032000;         // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2015040800;         // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2014051207.02;      // Requires this Moodle version
 $plugin->component = 'filter_sketchfab'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.0';
+$plugin->release = 'v1.01';
