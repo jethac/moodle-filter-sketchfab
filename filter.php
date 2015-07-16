@@ -17,8 +17,7 @@
 /**
  * Filter converting Sketchfab embeds created by atto_sketchfab in the text to embedded Sketchfab viewers.
  *
- * @package    filter
- * @subpackage sketchfab
+ * @package    filter_sketchfab
  * @copyright  2015 Jetha Chan <jetha@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
