@@ -93,7 +93,7 @@ class filter_sketchfab extends moodle_text_filter {
 
         global $CFG;
 
-        $regex = "/(<div class=\"atto_sketchfab-embed\">(.*?<\\/div>)<\\/div>)/";
+        $regex = "/(<div(?:.*?)class=\"atto_sketchfab-embed\"(?:.*?>)(.*?<\\/div>)<\\/div>)/";
         $rval = array();
         $success = preg_match_all($regex, $text, $rval);
         $targets = $rval[0];
