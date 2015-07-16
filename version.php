@@ -28,7 +28,7 @@ $plugin->version   = 2015071600;         // The current plugin version (Date: YY
 $plugin->requires  = 2014051207.02;      // Requires this Moodle version
 $plugin->component = 'filter_sketchfab'; // Full name of the plugin (used for diagnostics)
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.01';
+$plugin->release = 'v1.02';
 $plugin->dependencies = array(
     'atto_sketchfab' => 2015040802 // atto_sketchfab v1.03 (2015040802)
 );
